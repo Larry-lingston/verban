@@ -64,6 +64,28 @@ export default function HomePage() {
     setBusy(false);
   }
 
+  function onDownloadAll() {
+    if (files.length === 0) {
+      setStatus('No files available to download.');
+      return;
+    }
+
+    files.forEach((file, index) => {
+      const link = document.createElement('a');
+      link.href = `/api/download/${encodeURIComponent(file.pathname)}`;
+      link.download = file.pathname;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+
+      setTimeout(() => {
+        link.click();
+        document.body.removeChild(link);
+      }, index * 250);
+    });
+
+    setStatus(`Started ${files.length} download${files.length > 1 ? 's' : ''}.`);
+  }
+
   return (
     <main style={{ maxWidth: 720, margin: '3rem auto', padding: '0 1rem' }}>
       <h1 style={{ marginBottom: '0.5rem' }}>Minimal File Upload/Download</h1>
@@ -79,8 +101,16 @@ export default function HomePage() {
           style={{ marginBottom: '0.75rem' }}
         />
         <br />
-        <button type="submit" disabled={busy} style={{ padding: '0.5rem 0.9rem', cursor: busy ? 'not-allowed' : 'pointer' }}>
+        <button type="submit" disabled={busy} style={{ padding: '0.5rem 0.9rem', cursor: busy ? 'not-allowed' : 'pointer', marginRight: '0.5rem' }}>
           {busy ? 'Uploading...' : 'Upload'}
+        </button>
+        <button
+          type="button"
+          onClick={onDownloadAll}
+          disabled={busy || files.length === 0}
+          style={{ padding: '0.5rem 0.9rem', cursor: busy || files.length === 0 ? 'not-allowed' : 'pointer' }}
+        >
+          Download all uploads
         </button>
         {status && <p style={{ marginBottom: 0 }}>{status}</p>}
       </form>

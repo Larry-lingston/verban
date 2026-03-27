@@ -44,6 +44,12 @@ This is a minimal Next.js app that does two things:
 
 After deployment, the UI lets you upload files and download them from your Blob storage.
 
+
+## Download all uploads
+
+- Use the **Download all uploads** button in the UI to trigger downloads for every stored file.
+- Browsers may ask the user to allow multiple automatic downloads for the site.
+
 ## Common upload failure causes
 
 1. **Missing `BLOB_READ_WRITE_TOKEN`**
