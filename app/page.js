@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
+
 export default function HomePage() {
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -10,7 +12,13 @@ export default function HomePage() {
 
   async function loadFiles() {
     const res = await fetch('/api/files');
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      setStatus(data.error || 'Failed to load stored files.');
+      return;
+    }
+
     setFiles(data.files ?? []);
   }
 
@@ -26,6 +34,11 @@ export default function HomePage() {
       return;
     }
 
+    if (selectedFile.size > MAX_FILE_BYTES) {
+      setStatus('File is too large for this minimal uploader. Keep it under 4 MB.');
+      return;
+    }
+
     setBusy(true);
     setStatus('Uploading...');
 
@@ -37,8 +50,9 @@ export default function HomePage() {
       body: formData
     });
 
+    const body = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
       setStatus(body.error || 'Upload failed.');
       setBusy(false);
       return;
